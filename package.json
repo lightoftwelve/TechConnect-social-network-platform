@@ -1,0 +1,22 @@
+{
+  "name": "techconnect",
+  "version": "1.0.0",
+  "description": "A social networking platform enabling users to connect, befriend, and share insightful thoughts with peers.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node index",
+    "dev": "nodemon index",
+    "seed": "node utils/seed"
+  },
+  "dependencies": {
+    "dotenv": "^8.6.0",
+    "express": "^4.17.1",
+    "mongoose": "^7.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.9"
+  },
+  "keywords": [],
+  "author": "Victoria Alawi | Light of Twelve | www.lightoftwelve.com | https://github.com/lightoftwelve",
+  "license": ""
+}
