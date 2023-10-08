@@ -18,7 +18,25 @@
   "devDependencies": {
     "nodemon": "^2.0.9"
   },
-  "keywords": [],
+  "keywords": [
+    "social-network",
+    "connections",
+    "friendship",
+    "thought-sharing",
+    "posts",
+    "community",
+    "discussions",
+    "mongoose",
+    "express",
+    "nodejs",
+    "API",
+    "user-profile",
+    "interactions",
+    "reactions",
+    "social-media",
+    "real-time",
+    "web-app"
+  ],
   "author": "Victoria Alawi | Light of Twelve | www.lightoftwelve.com | https://github.com/lightoftwelve",
   "license": ""
 }
