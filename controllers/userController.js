@@ -4,9 +4,10 @@ const mongoose = require("mongoose");
 mongoose.set("debug", true);
 
 module.exports = {
-  // Get all users
+  // Retrieve all users with associated thoughts and friends
   getAllUsers: async (req, res, next) => {
     try {
+      // Find all users and populate their associated thoughts and friends
       const users = await User.find()
         .select("_id username email thoughts")
         .populate({
@@ -18,11 +19,10 @@ module.exports = {
           select: "username -_id",
         });
 
+      // Add a friend count and transform friends to only include usernames
       const usersWithFriendCount = users.map((user) => {
         const userObj = user.toObject();
         userObj.friendCount = user.friends.length;
-
-        // Transform the friends array to contain only usernames
         userObj.friends = userObj.friends.map(
           (friendObj) => friendObj.username
         );
@@ -36,9 +36,10 @@ module.exports = {
     }
   },
 
-  // Get a single user by id
+  // Retrieve a single user by their ID
   getUserById: async (req, res, next) => {
     try {
+      // Find user by ID and populate their associated thoughts and friends
       const user = await User.findById(req.params.id)
         .select("_id username email thoughts")
         .populate({
@@ -52,10 +53,9 @@ module.exports = {
 
       if (!user) return res.status(404).json({ message: "User not found" });
 
+      // Add friend count and transform friends to only include usernames
       const userWithFriendCount = user.toObject();
       userWithFriendCount.friendCount = user.friends.length;
-
-      // Transform the friends array to contain only usernames
       userWithFriendCount.friends = userWithFriendCount.friends.map(
         (friendObj) => friendObj.username
       );
@@ -84,9 +84,10 @@ module.exports = {
     }
   },
 
-  // Update a user by id
+  // Update an existing user by their ID
   updateUser: async (req, res, next) => {
     try {
+      // Update user and populate their friends
       const user = await User.findByIdAndUpdate(req.params.id, req.body, {
         new: true,
         runValidators: true,
@@ -99,10 +100,9 @@ module.exports = {
 
       if (!user) return res.status(404).json({ message: "User not found" });
 
+      // Add friend count and transform friends to only include usernames
       const userWithFriendCount = user.toObject();
       userWithFriendCount.friendCount = user.friends.length;
-
-      // Transform the friends array to contain only usernames
       userWithFriendCount.friends = userWithFriendCount.friends.map(
         (friendObj) => friendObj.username
       );
@@ -113,7 +113,7 @@ module.exports = {
     }
   },
 
-  // Delete a user by id
+  // Delete a user and their associated thoughts
   deleteUser: async (req, res, next) => {
     try {
       const user = await User.findByIdAndDelete(req.params.id);
@@ -128,7 +128,7 @@ module.exports = {
     }
   },
 
-  // To add a new friend to a user's friend list
+  // Add a user to another user's friend list (mutual friendship)
   addFriend: async (req, res, next) => {
     try {
       const user = await User.findById(req.params.userId);
@@ -138,7 +138,7 @@ module.exports = {
         return res.status(404).json({ message: "User or friend not found" });
       }
 
-      // Check if the friend is already in the user's friend list
+      // Ensure that the friend isn't already in the user's friend list
       if (user.friends.includes(req.params.friendId)) {
         return res
           .status(400)
@@ -146,12 +146,11 @@ module.exports = {
       }
 
       user.friends.push(req.params.friendId);
-      friend.friends.push(req.params.userId); // Mutual addition
+      friend.friends.push(req.params.userId); // Add mutual friendship
 
       await user.save();
       await friend.save(); // Saving the mutual friend addition for the friend
 
-      // Constructing the friendship message
       const friendshipMessage = `${user.username} + ${friend.username} are now friends`;
 
       res.json({ message: friendshipMessage });
@@ -160,7 +159,7 @@ module.exports = {
     }
   },
 
-  // To remove a friend from a user's friend list
+  // Remove a user from another user's friend list (mutual removal)
   deleteFriend: async (req, res, next) => {
     try {
       const user = await User.findById(req.params.userId);
@@ -170,6 +169,7 @@ module.exports = {
         return res.status(404).json({ message: "User or friend not found" });
       }
 
+      // Ensure that the friend is in the user's friend list before removal
       if (!user.friends.includes(req.params.friendId)) {
         return res.status(400).json({ message: "This user is not a friend" });
       }
@@ -180,12 +180,11 @@ module.exports = {
 
       friend.friends = friend.friends.filter(
         (userId) => userId.toString() !== req.params.userId
-      ); // Mutual removal
+      ); // Mutual removal of friendship
 
       await user.save();
       await friend.save(); // Saving the mutual friend removal for the friend
 
-      // Constructing the "no longer friends" message
       const noLongerFriendsMessage = `${user.username} and ${friend.username} are no longer friends`;
 
       res.json({ message: noLongerFriendsMessage });
