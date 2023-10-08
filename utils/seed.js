@@ -2,14 +2,17 @@ const connection = require("../config/connection");
 const { User, Thought } = require("../models");
 const { userData, thoughtData, reactionsPool } = require("./data");
 
+// Log errors if any occur during MongoDB connection
 connection.on("error", (err) =>
   console.error("MongoDB connection error: ", err)
 );
 
+// Once MongoDB is connected, seed the database
 connection.once("open", async () => {
   console.log("connected");
 
   try {
+    // Drop existing 'users' collection if it exists
     let userCheck = await connection.db
       .listCollections({ name: "users" })
       .toArray();
@@ -17,6 +20,7 @@ connection.once("open", async () => {
       await connection.dropCollection("users");
     }
 
+    // Drop existing 'thoughts' collection if it exists
     let thoughtCheck = await connection.db
       .listCollections({ name: "thoughts" })
       .toArray();
@@ -24,9 +28,11 @@ connection.once("open", async () => {
       await connection.dropCollection("thoughts");
     }
 
+    // Insert users data into the database
     const insertedUsers = await User.collection.insertMany(userData);
     console.log("Insertion result:", insertedUsers);
 
+    // Confirm successful user insertion
     const createdUsers = userData;
     console.log("Users inserted successfully!");
 
@@ -35,7 +41,7 @@ connection.once("open", async () => {
       throw new Error("Error in user insertion.");
     }
 
-    // Fisher-Yates (or Durstenfeld) shuffle
+    // Helper function to shuffle an array (Fisher-Yates shuffle)
     function shuffleArray(array) {
       for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -44,6 +50,7 @@ connection.once("open", async () => {
       return array;
     }
 
+    // Helper function to get random friend IDs
     function getRandomFriendIds(allUsers, currentUser, numFriends) {
       let potentialFriends = allUsers.filter(
         (user) => user._id.toString() !== currentUser._id.toString()
@@ -52,6 +59,7 @@ connection.once("open", async () => {
       return potentialFriends.slice(0, numFriends).map((friend) => friend._id);
     }
 
+    // Assign friends to each user
     const maxFriends = 3;
     for (const user of createdUsers) {
       const friendIds = getRandomFriendIds(createdUsers, user, maxFriends);
@@ -60,6 +68,7 @@ connection.once("open", async () => {
       });
     }
 
+    // Assign thoughts and reactions
     for (const thought of thoughtData) {
       const user = createdUsers.find(
         (user) => user.username === thought.username
@@ -94,9 +103,11 @@ connection.once("open", async () => {
       }
     }
 
+    // Log success message after seeding
     console.log("Database seeded!");
     process.exit(0);
   } catch (err) {
+    // Log and exit on errors
     console.error(err);
     process.exit(1);
   }
