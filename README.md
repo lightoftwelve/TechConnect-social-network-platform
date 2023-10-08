@@ -47,10 +47,7 @@ TechConnect is a social networking platform that provides users with the capabil
 - DotENV
 
 ## Live Demo
-
-// Currently not live
-
-Take a look at the live demo and explore the platform's features: [Watch Here](https://linkhere).
+Take a look at the live demo and explore the platform's features: [Watch Here](https://drive.google.com/file/d/1VNrbpxJhrLU1C4jDtr4rSYbST_S2zzB_/view).
 
 ## Credits
 
